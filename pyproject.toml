@@ -1,0 +1,84 @@
+[tool.poetry]
+name = "enableops-api"
+version = "0.0.0"
+description = "API for working with enableOps service"
+authors = ["Andrei Chenchik <andrei@enableops.io>"]
+license = "Proprietary"
+
+[tool.poetry.dependencies]
+python = "~3.9"
+notion-client = "^0.8.0"
+PyGithub = "^1.55"
+fastapi = "^0.70.1"
+uvicorn = {extras = ["standard"], version = "^0.16.0"}
+pydantic = {extras = ["email", "dotenv"], version = "^1.9.0"}
+itsdangerous = "^2.0.1"
+google-api-python-client = "^2.33.0"
+python-multipart = "^0.0.5"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+SQLAlchemy = "^1.4.29"
+cryptography = "^36.0.1"
+google-auth-oauthlib = "^0.4.6"
+tomli = "^1"
+sentry-sdk = "^1.5.2"
+alembic = "^1.7.5"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.920"
+types-requests = "^2.26.2"
+pylint = "^2.12.2"
+black = "^22.0"
+types-orjson = "^3.6.2"
+types-ujson = "^4.2.1"
+pytest = "^6.2.5"
+SQLAlchemy = {extras = ["mypy"], version = "^1.4.29"}
+isort = "^5.10.1"
+vulture = "^2.3"
+pre-commit = "^2.16.0"
+pytest-cov = "^3.0.0"
+
+[tool.black]
+line-length = 79
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+ \.git
+ | \.hg
+ | \.mypy_cache
+ | \.tox
+ | \.venv
+ | _build
+ | buck-out
+ | build
+ | dist
+)/
+'''
+
+
+[tool.mypy]
+python_version = 3.9
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = "^tests|migrations/"
+files = "app/**/"
+plugins = "sqlalchemy.ext.mypy.plugin"
+
+[tool.isort]
+py_version=39
+multi_line_output = 3
+include_trailing_comma = true
+combine_as_imports = true
+src_paths = ["app"]
+
+[tool.vulture]
+paths = ["app"]
+min_confidence = 70
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

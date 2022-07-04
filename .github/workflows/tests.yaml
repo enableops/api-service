@@ -1,0 +1,43 @@
+name: Tests
+on: push
+
+jobs:
+  deploy:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v2
+
+      - name: Get Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Get Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.12
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Set Poetry config
+        run: |
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+
+      - name: Install Dependencies
+        run: poetry install
+
+      # - name: Code Quality
+      #   run: poetry run flake8 app/ --max-complexity 10
+
+      - name: Test with pytest
+        run: poetry run pytest --cov .

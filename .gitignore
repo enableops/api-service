@@ -1,0 +1,14 @@
+# Development Environment
+.DS_Store
+.envrc
+.deta
+.vscode
+pyrightconfig.json
+.venv
+
+# Dynamic
+requirements.txt
+__pycache__
+.coverage
+.pytest_cache
+*.sqlite*
