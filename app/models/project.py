@@ -7,8 +7,8 @@ from typing import Dict, List
 from pydantic import BaseModel, Field
 
 from app.models.user import UserInfo
-from app.services.helpers import current_timestamp
 
+current_timestamp = lambda: int(datetime.timestamp(datetime.now()))
 
 class AutoName(Enum):
     def _generate_next_value_(name, start, count, last_values):
