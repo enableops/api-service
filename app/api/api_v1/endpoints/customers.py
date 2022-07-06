@@ -31,7 +31,7 @@ def get_active_projects(
 
 @router.post("/apply")
 def post_apply_status(
-    terraform_update: terraform.TerraformUpdate,
+    terraform_update: terraform.IncomingCustomersUpdate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     terraform_token: str = Header(..., description="Auth header"),
