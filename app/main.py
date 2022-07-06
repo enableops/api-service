@@ -22,11 +22,29 @@ from services import github
 
 # App
 # Instantiate app
+app_name = settings.PROJECT_NAME
+app_version = settings.VERSION
+
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
+    title=app_name,
+    version=app_version,
     openapi_url="/v1/openapi.json",
 )
+
+# Setup logging
+sentry_dsn = settings.SENTRY_DSN
+if sentry_dsn:
+    if "dev" in app_version or app_version == "0.0.0":
+        environment = "debug"
+    else:
+        environment = "prod"
+
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        environment=environment,
+        release=app_version,
+    )
+    app.add_middleware(SentryAsgiMiddleware)
 
 # Add CORS Security
 CORS_SETTINGS = settings.SECURITY.BACKEND_CORS_ORIGINS
@@ -46,15 +64,6 @@ app.add_middleware(
     same_site="strict",
     https_only=True,
 )
-
-
-# Create ability to report errors to Sentry
-sentry_sdk.init(
-    dsn=settings.SENTRY_DSN,
-    environment=settings.ENV_STATE,
-    release=settings.VERSION,
-)
-app.add_middleware(SentryAsgiMiddleware)
 
 
 # Database & session init
