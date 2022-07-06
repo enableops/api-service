@@ -19,6 +19,7 @@ from app.core.config import settings
 
 from services import github
 
+from app.api.api_v1.api import api_router
 
 # App
 # Instantiate app
@@ -71,28 +72,6 @@ engine = create_engine(
     settings.DB.URI, connect_args={"check_same_thread": False}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Link infrastructure
-github_config = github.Settings()
-github = github.Github(settings=github_config)
-
-
-# Routes
-# TODO: Fix circular dependency
-from app.api.api_v1.api import api_router  # noqa: E402
-from app.api.api_v1.endpoints.auth import get_token  # noqa: E402
-from app.services.openapi import update_schema_name  # noqa: E402
-
-
-# Add redirect to docs
-@app.get("/", include_in_schema=False)
-def redirect_to_docs() -> RedirectResponse:
-    """Redirects to /docs.
-
-    Redirect from empty root endpoint to /docs endpoint,
-    which provides a convinient way to go for docs.
-    """
-    return RedirectResponse("/docs")
 
 
 # Add main api router
