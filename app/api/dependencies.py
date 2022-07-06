@@ -19,6 +19,9 @@ from app.models.user import User
 from app.services.google_api import GoogleAPI, GoogleUserAPI
 
 
+from app import urls
+
+
 def decode(jwt_token: str):
     return jwt.decode(
         jwt_token,
@@ -83,9 +86,7 @@ class OAuth2AuthorizationCodeBearerOrSession(OAuth2):
             token_secret = decode(jwt_token=param).get("csrf_secret")
 
             valid_double_cookie = (
-                cookie_secret
-                and token_secret
-                and cookie_secret == token_secret
+                cookie_secret and token_secret and cookie_secret == token_secret
             )
 
         if not is_bearer and not valid_double_cookie:
@@ -98,12 +99,8 @@ class OAuth2AuthorizationCodeBearerOrSession(OAuth2):
 
 
 oauth2_scheme = OAuth2AuthorizationCodeBearerOrSession(
-    authorizationUrl=(
-        "/v1" f"{settings.PATH.AUTH_MODULE}" f"{settings.PATH.AUTH_REDIRECT}"
-    ),
-    tokenUrl=(
-        "/v1" f"{settings.PATH.AUTH_MODULE}" f"{settings.PATH.AUTH_TOKEN}"
-    ),
+    authorizationUrl=f"/v1{urls.Sections.auth}{urls.Auth.start}",
+    tokenUrl=f"/v1{urls.Sections.auth}{urls.Auth.token}",
     auto_error=True,
 )
 

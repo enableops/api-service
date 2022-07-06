@@ -13,33 +13,26 @@ from app.database.crud import user as crud
 from app.models.token import Token, TokenData, TokenRequestForm
 from app.models.user import UserCreate
 from app.services.google_api import GoogleAPI
+from app import urls
 
 router: APIRouter = APIRouter()
 
 
-@router.get("/settings")
+@router.get(urls.Auth.settings)
 async def get_settings():
     return {
         "client_id": settings.OAUTH.CLIENT_ID,
         "prompt": settings.OAUTH.PROMPT_TYPE,
         "access_type": settings.OAUTH.ACCESS_TYPE,
         "scope": " ".join(settings.OAUTH.SCOPES),
-        "token_url": (
-            f"{settings.OAUTH.REDIRECT_HOST}/v1"
-            f"{settings.PATH.AUTH_MODULE}"
-            f"{settings.PATH.AUTH_TOKEN}"
-        ),
+        "token_url": "/v1" + urls.Sections.auth + urls.Auth.token,
     }
 
 
-@router.get(settings.PATH.AUTH_REDIRECT)
+@router.get(urls.Auth.start)
 async def start_auth(
     request: Request,
-    redirect_uri: str = (
-        f"{settings.OAUTH.REDIRECT_HOST}/v1"
-        f"{settings.PATH.AUTH_MODULE}"
-        f"{settings.PATH.AUTH_TOKEN}"
-    ),
+    redirect_uri: str = f"{settings.OAUTH.REDIRECT_HOST}/v1{urls.Sections.auth}{urls.Auth.token}",
     state: Optional[str] = None,
     gapi: GoogleAPI = Depends(get_gapi),
 ):
@@ -51,24 +44,22 @@ async def start_auth(
     return RedirectResponse(url=auth_url)
 
 
-@router.get("/logout")
+@router.get(urls.Auth.logout)
 async def logout_from_session(response: Response):
-    # TODO: Let starlette know about this bug
     cookie_delete = "access_token=; Max-Age=0; Path=/; SameSite=None; Secure"
     response.headers.update({"Set-Cookie": cookie_delete})
     return "Sorry to see you go"
 
 
-@router.post(settings.PATH.AUTH_TOKEN, response_model=Token)
+@router.post(urls.Auth.token, response_model=Token)
 def get_token(
     request: Request,
     response: Response,
     background_tasks: BackgroundTasks,
     form: TokenRequestForm = Depends(),
     db: Session = Depends(get_db),
+    gapi: GoogleAPI = Depends(get_gapi),
 ):
-    gapi = get_gapi(client_id=form.client_id, client_secret=form.client_secret)
-
     state = request.session.pop("state", None)
 
     user = gapi.get_user_from_authcode(
@@ -119,7 +110,7 @@ def generate_token(data: dict, expires_delta: timedelta):
     encoded_jwt = jwt.encode(
         to_encode,
         settings.SECURITY.SESSION_SIGN_KEY,
-        algorithm=settings.SECURITY.JWT_ALGORITHM,
+        algorithm="HS256",
     )
 
     return encoded_jwt
