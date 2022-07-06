@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import logging
 import os
 import secrets
+from typing import Any
 
 from jose import jwt
 from pydantic import BaseModel
@@ -37,10 +38,18 @@ class Token:
 class JWT:
     token_expire_minutes: int
     encryption_key: str
+    algorithm: str
 
-    def __init__(self, *, token_expire_minutes: int, encryption_key: str):
+    def __init__(
+        self,
+        *,
+        token_expire_minutes: int,
+        encryption_key: str,
+        algorithm: str = "HS256",
+    ):
         self.token_expire_minutes = token_expire_minutes
         self.encryption_key = encryption_key
+        self.algorithm = algorithm
 
     def create_access_token(self, *, for_sub: str) -> Token:
         ttl = timedelta(minutes=self.token_expire_minutes)
@@ -74,7 +83,22 @@ class JWT:
             algorithm="HS256",
         )
 
-        return str(encoded_jwt)
+        if type(encoded_jwt) is str:
+            return encoded_jwt
+        else:
+            raise ValueError
+
+    def decode(self, *, jwt_token: str) -> dict:
+        payload = jwt.decode(
+            jwt_token,
+            self.encryption_key,
+            algorithms=self.algorithm,
+        )
+
+        if type(payload) is dict:
+            return payload
+        else:
+            raise ValueError
 
 
 def get_jwt() -> JWT:
