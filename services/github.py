@@ -25,7 +25,7 @@ class Github:
     workflow_file: str
     ref: str
 
-    def __init__(self, settings: Settings):
+    def __init__(self, *, settings: Settings):
         github_settings = settings.settings
 
         self.repo_name = github_settings.repo
