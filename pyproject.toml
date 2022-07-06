@@ -2,8 +2,9 @@
 name = "enableops-api"
 version = "0.0.0"
 description = "API for working with enableOps service"
-authors = ["Andrei Chenchik <andrei@enableops.io>"]
-license = "Proprietary"
+authors = ["Andrei Chenchik <andrei@chenchik.me>"]
+license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "~3.9"
