@@ -92,7 +92,7 @@ class JWT:
         payload = jwt.decode(
             jwt_token,
             self.encryption_key,
-            algorithms=self.algorithm,
+            algorithms=[self.algorithm],
         )
 
         if type(payload) is dict:
