@@ -1,3 +1,5 @@
+import os
+
 import github
 from pydantic import BaseModel
 
@@ -11,10 +13,11 @@ class GithubSettings(BaseModel):
 
 
 class Settings(BaseModel):
-    settings: GithubSettings
+    github: GithubSettings
 
     class Config:
-        env_prefix = "GITHUB_"
+        env_nested_delimiter = "__"
+        secrets_dir = os.getenv("SECRETS_PATH")
 
 
 class Github:
@@ -26,7 +29,7 @@ class Github:
     ref: str
 
     def __init__(self, *, settings: Settings):
-        github_settings = settings.settings
+        github_settings = settings.github
 
         self.repo_name = github_settings.repo
         self.workflow_name = github_settings.workflow_file
@@ -43,3 +46,8 @@ class Github:
 
     def infrastructure_update(self):
         return self.dispatch_workflow()
+
+
+def get_github() -> Github:
+    settings = Settings()
+    return Github(settings=settings)
