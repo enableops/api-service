@@ -4,7 +4,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from app.database.custom_base import CustomBase
-from app.services.cryptography import crpt
+
+from services import crypto
 
 
 class User(CustomBase):
@@ -17,14 +18,16 @@ class User(CustomBase):
 
     @hybrid_property
     def credentials(self) -> str:
+        crpt = crypto.get_crypto()
         return crpt.decrypt(token=self.token)
 
     @credentials.setter  # type: ignore
     def credentials(self, value: str) -> None:
+        crpt = crypto.get_crypto()
         self.token = crpt.encrypt(string=value)
 
-    # TODO: Find a propper way to define hybrid_property without custom init
     def __init__(self, uid: str, email: str, credentials: str) -> None:
+        crpt = crypto.get_crypto()
         self.uid = uid
         self.email = email
         self.token = crpt.encrypt(string=credentials)
