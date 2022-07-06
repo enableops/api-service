@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app import settings
 from app import main
 from app import oauth
-from services import googleauth, jwt
+from services import googleauth, jwt, googleapi
 
 from app.database.crud import user as crud
 from app.models.token import TokenData
@@ -22,6 +22,7 @@ async def get_db():
 get_oauth = lambda: googleauth.get_gauth()
 get_token_service = lambda: jwt.get_jwt()
 get_app_settings = lambda: settings.Settings().api
+get_user_api = lambda: googleapi.get_gapi()
 
 
 def get_current_user(

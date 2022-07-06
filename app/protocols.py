@@ -1,4 +1,4 @@
-from typing import Optional, Protocol, Tuple
+from typing import Dict, List, Optional, Protocol, Tuple
 
 
 class Infrastructure(Protocol):
@@ -45,4 +45,12 @@ class Token(Protocol):
 
 class TokenService(Protocol):
     def create_access_token(self, *, for_sub: str) -> Token:
+        ...
+
+
+class UserAPI(Protocol):
+    def get_project_ids(self) -> List[Dict[str, str]]:
+        ...
+
+    def get_profile(self) -> Dict[str, str]:
         ...
