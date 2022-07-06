@@ -17,6 +17,9 @@ from starlette.responses import RedirectResponse
 
 from app.core.config import settings
 
+from services import github
+
+
 # App
 # Instantiate app
 app = FastAPI(
@@ -59,6 +62,10 @@ engine = create_engine(
     settings.DB.URI, connect_args={"check_same_thread": False}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Link infrastructure
+github_config = github.Settings()
+github = github.Github(settings=github_config)
 
 
 # Routes
