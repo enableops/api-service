@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 
-from pydantic import BaseModel, AnyHttpUrl
+from pydantic import BaseModel, AnyHttpUrl, parse_obj_as
 import tomli
 
 
@@ -19,10 +19,11 @@ class APISettings(BaseModel):
     CORS: List[AnyHttpUrl] = []
     SESSION_KEY: str = default_session_key
     DB_URL: str = "sqlite:///database.sqlite"
+    HOST_URL: AnyHttpUrl = parse_obj_as(AnyHttpUrl, "http://127.0.0.1:8000")
 
 
 class Settings(BaseModel):
-    api: APISettings
+    api: APISettings = APISettings()
 
     class Config:
         env_nested_delimiter = "__"

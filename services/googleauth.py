@@ -1,28 +1,32 @@
 from dataclasses import dataclass
 import json
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from google.auth.transport import requests as google_auth_requests
 from google.oauth2.credentials import Credentials
 from google.oauth2.id_token import verify_oauth2_token
 from google_auth_oauthlib.flow import Flow
 
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, HttpUrl, parse_obj_as
 
 
 class OAuthSettings(BaseModel):
     CLIENT_ID: str = ""
     CLIENT_SECRET: str = ""
-    AUTH_URI: str = "https://accounts.google.com/o/oauth2/auth"
-    TOKEN_URI: str = "https://accounts.google.com/o/oauth2/token"
+    AUTH_URI: HttpUrl = parse_obj_as(
+        HttpUrl, "https://accounts.google.com/o/oauth2/auth"
+    )
+    TOKEN_URI: HttpUrl = parse_obj_as(
+        HttpUrl, "https://accounts.google.com/o/oauth2/token"
+    )
     ACCESS_TYPE: str = "offline"
     PROMPT_TYPE: str = "consent"
     SCOPES: List[str] = []
 
 
 class Settings(BaseModel):
-    oauth: OAuthSettings
+    oauth: OAuthSettings = OAuthSettings()
 
     class Config:
         env_nested_delimiter = "__"

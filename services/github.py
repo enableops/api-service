@@ -13,7 +13,7 @@ class GithubSettings(BaseModel):
 
 
 class Settings(BaseModel):
-    github: GithubSettings
+    github: GithubSettings = GithubSettings()
 
     class Config:
         env_nested_delimiter = "__"

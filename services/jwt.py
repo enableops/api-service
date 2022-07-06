@@ -12,16 +12,12 @@ default_encryption_key = "hello world!"
 
 
 class JWTSettings(BaseModel):
-    token_expire_minutes: int
+    token_expire_minutes: int = 20160
     encryption_key: str = default_encryption_key
-
-    repo: str
-    workflow_file: str
-    ref: str
 
 
 class Settings(BaseModel):
-    jwt: JWTSettings
+    jwt: JWTSettings = JWTSettings()
 
     class Config:
         env_nested_delimiter = "__"
