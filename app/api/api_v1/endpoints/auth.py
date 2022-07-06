@@ -1,30 +1,28 @@
-from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, Request, Response
 from fastapi.param_functions import Depends
-from jose import jwt
 from sqlalchemy.orm import Session
 from starlette.responses import RedirectResponse
 
-from app.api.dependencies import get_db, get_gapi
-from app.core.config import settings
 from app.database.crud import user as crud
-from app.models.token import Token, TokenData, TokenRequestForm
-from app.models.user import UserCreate
-from app.services.google_api import GoogleAPI
+from app.models.token import Token, TokenRequestForm
+
 from app import urls
+from app import protocols as protos
+from app import dependencies as deps
+from app import settings
 
 router: APIRouter = APIRouter()
 
 
 @router.get(urls.Auth.settings)
-async def get_settings():
+async def get_settings(oauth: protos.OAuth = Depends(deps.get_oauth)):
     return {
-        "client_id": settings.OAUTH.CLIENT_ID,
-        "prompt": settings.OAUTH.PROMPT_TYPE,
-        "access_type": settings.OAUTH.ACCESS_TYPE,
-        "scope": " ".join(settings.OAUTH.SCOPES),
+        "client_id": oauth.client_id,
+        "prompt": oauth.prompt_type,
+        "access_type": oauth.access_type,
+        "scope": " ".join(oauth.scopes),
         "token_url": "/v1" + urls.Sections.auth + urls.Auth.token,
     }
 
@@ -32,11 +30,15 @@ async def get_settings():
 @router.get(urls.Auth.start)
 async def start_auth(
     request: Request,
-    redirect_uri: str = f"{settings.OAUTH.REDIRECT_HOST}/v1{urls.Sections.auth}{urls.Auth.token}",
     state: Optional[str] = None,
-    gapi: GoogleAPI = Depends(get_gapi),
+    oauth: protos.OAuth = Depends(deps.get_oauth),
+    app_settings: settings.APISettings = Depends(deps.get_app_settings),
 ):
-    auth_url, state = gapi.get_auth_url_with_state(
+    redirect_uri = (
+        f"{app_settings.HOST_URL}/v1{urls.Sections.auth}{urls.Auth.token}"
+    )
+
+    auth_url, state = oauth.get_auth_url_with_state(
         redirect_uri=redirect_uri, state=state
     )
 
@@ -57,17 +59,18 @@ def get_token(
     response: Response,
     background_tasks: BackgroundTasks,
     form: TokenRequestForm = Depends(),
-    db: Session = Depends(get_db),
-    gapi: GoogleAPI = Depends(get_gapi),
+    db: Session = Depends(deps.get_db),
+    oauth: protos.OAuth = Depends(deps.get_oauth),
+    token_service: protos.TokenService = Depends(deps.get_token_service),
 ):
     state = request.session.pop("state", None)
 
-    user = gapi.get_user_from_authcode(
+    user = oauth.get_user_from_authcode(
         code=form.code, state=state, redirect_uri=form.redirect_uri
     )
     background_tasks.add_task(crud.update_user, db=db, user=user)
 
-    token = create_access_token(user=user)
+    token = token_service.create_access_token(for_sub=user.uid)
     response.set_cookie(
         key="access_token",
         value=token.access_token,
@@ -78,39 +81,3 @@ def get_token(
     )
 
     return token
-
-
-def create_access_token(user: UserCreate) -> Token:
-    token_expires = timedelta(
-        minutes=settings.SECURITY.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
-
-    token_data = TokenData(sub=user.uid)
-    access_token = generate_token(
-        data=token_data.dict(), expires_delta=token_expires
-    )
-    csrf_token = generate_token(
-        data={"csrf_secret": token_data.csrf_secret},
-        expires_delta=token_expires,
-    )
-
-    return Token(
-        access_token=access_token, csrf_token=csrf_token, token_type="bearer"
-    )
-
-
-def generate_token(data: dict, expires_delta: timedelta):
-    to_encode = data.copy()
-
-    expire_datetime = datetime.now() + expires_delta
-    exp_timestamp = int(datetime.timestamp(expire_datetime))
-
-    to_encode.update({"exp": exp_timestamp})
-
-    encoded_jwt = jwt.encode(
-        to_encode,
-        settings.SECURITY.SESSION_SIGN_KEY,
-        algorithm="HS256",
-    )
-
-    return encoded_jwt
