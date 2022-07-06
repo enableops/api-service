@@ -9,26 +9,20 @@ class GoogleUserAPI:
     credentials: Credentials
 
     @classmethod
-    def from_user(cls, user: ga.GoogleOAuthUser) -> "GoogleUserAPI":
-        info = ga.get_gauth().get_user_credentials_info(user=user)
+    def from_user_info
 
-        return GoogleUserAPI(
-            client_id=info["client_id"],
-            client_secret=info["client_secret"],
-            user=user,
-        )
+    def __init__(self, *, credentials: Credentials):
+        self.credentials = Credentials
+
+
 
     def get_profile(self) -> Dict[str, str]:
-        credentials = self.get_user_credentials(user=self.user)
-
-        with build("oauth2", "v2", credentials=credentials) as service:
+        with build("oauth2", "v2", credentials=self.credentials) as service:
             return service.userinfo().get().execute()
 
     def get_project_ids(self) -> List[Dict[str, str]]:
-        credentials = self.get_user_credentials(user=self.user)
-
         with build(
-            "cloudresourcemanager", "v1", credentials=credentials
+            "cloudresourcemanager", "v1", credentials=self.credentials
         ) as service:
             filter = "lifecycleState:ACTIVE"
             projects_response = (
@@ -41,8 +35,6 @@ class GoogleUserAPI:
             ]
 
             return projects
-
-    class Config:
 
 def get_gapi():
     return GoogleUserAPI()
