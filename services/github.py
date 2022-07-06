@@ -41,5 +41,5 @@ class Github:
 
         return workflow.create_dispatch(self.ref)
 
-    def update(self):
+    def infrastructure_update(self):
         return self.dispatch_workflow()

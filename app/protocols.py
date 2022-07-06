@@ -2,7 +2,7 @@ from typing import Protocol
 
 
 class Infrastructure(Protocol):
-    def update(self) -> bool:
+    def infrastructure_update(self) -> bool:
         ...
 
 
