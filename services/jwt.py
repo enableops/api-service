@@ -80,7 +80,7 @@ class JWT:
         encoded_jwt = jwt.encode(
             to_encode,
             self.encryption_key,
-            algorithm="HS256",
+            algorithm=self.algorithm,
         )
 
         if type(encoded_jwt) is str:
