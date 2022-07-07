@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 
-from app import urls
+from app.models import urls
 from services import jwt
 
 

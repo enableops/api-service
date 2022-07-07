@@ -8,7 +8,7 @@ from starlette.responses import RedirectResponse
 from app.database.crud import user as crud
 from app.models.token import Token, TokenRequestForm
 
-from app import urls
+from app.models import urls
 from app import protocols as protos
 from app import dependencies as deps
 from app import settings

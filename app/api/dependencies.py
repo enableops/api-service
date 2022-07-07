@@ -19,7 +19,7 @@ from app.models.user import User
 from app.services.google_api import GoogleAPI, GoogleUserAPI
 
 
-from app import urls
+from app.models import urls
 
 
 def decode(jwt_token: str):
