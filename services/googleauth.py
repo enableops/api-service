@@ -1,11 +1,7 @@
 from dataclasses import dataclass
-import json
-import logging
-import os
 from typing import List, Optional, Tuple
 
 from google.auth.transport import requests as google_auth_requests
-from google.oauth2.credentials import Credentials
 from google.oauth2.id_token import verify_oauth2_token
 from google_auth_oauthlib.flow import Flow
 
@@ -114,53 +110,11 @@ class GoogleOAuth:
             credentials.id_token, gar, audience=self.client_id
         )
 
-        user = GoogleOAuthUser(
+        return GoogleOAuthUser(
             uid=identity["sub"],
             email=identity["email"],
-            credentials=self.get_credentials_info(credentials=credentials),
+            credentials=credentials.to_json(),
         )
-
-        return user
-
-    def get_user_credentials_info(
-        self, credentials_json: str
-    ) -> dict[str, str]:
-        info: dict[str, str] = json.loads(credentials_json)
-
-        if not "client_id" in info:
-            info.update(
-                {
-                    "client_id": self.client_id,
-                    "client_secret": self.client_secret,
-                }
-            )
-
-        return info
-
-    def prepare_user_credentials(self, credentials_json: str) -> Credentials:
-        info = self.get_user_credentials_info(credentials_json=credentials_json)
-        credentials = Credentials.from_authorized_user_info(info=info)
-
-        if not credentials.valid:
-            gar = google_auth_requests.Request()
-            credentials.refresh(gar)
-
-        if credentials.valid:
-            logging.debug(credentials_json)
-            logging.debug(credentials)
-            return credentials
-
-        raise ValueError
-
-    def get_credentials_info(self, credentials: Credentials) -> str:
-        info: str
-
-        if credentials.client_id == self.client_id:
-            info = credentials.to_json(strip=["client_id", "client_secret"])
-        else:
-            info = credentials.to_json()
-
-        return info
 
 
 def get_gauth() -> GoogleOAuth:

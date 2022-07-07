@@ -49,6 +49,11 @@ class TokenService(Protocol):
 
 
 class UserAPI(Protocol):
+    credentials: str
+
+    def __init__(self, *, credentials: str):
+        ...
+
     def get_project_ids(self) -> List[Dict[str, str]]:
         ...
 
