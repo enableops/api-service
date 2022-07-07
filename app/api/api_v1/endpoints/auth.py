@@ -17,13 +17,20 @@ router: APIRouter = APIRouter()
 
 
 @router.get(urls.Auth.settings)
-async def get_settings(oauth: protos.OAuth = Depends(deps.get_oauth)):
+async def get_settings(
+    oauth: protos.OAuth = Depends(deps.get_oauth),
+    app_settings: settings.APISettings = Depends(deps.get_app_settings),
+):
+    token_url = (
+        f"{app_settings.host_url}/v1{urls.Sections.auth}{urls.Auth.token}"
+    )
+
     return {
         "client_id": oauth.client_id,
         "prompt": oauth.prompt_type,
         "access_type": oauth.access_type,
         "scope": " ".join(oauth.scopes),
-        "token_url": "/v1" + urls.Sections.auth + urls.Auth.token,
+        "token_url": token_url,
     }
 
 

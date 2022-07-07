@@ -3,13 +3,13 @@ import os
 import secrets
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from pydantic import BaseModel
+from pydantic import BaseSettings
 
 
 default_key = b"pls help me god!"
 
 
-class Settings(BaseModel):
+class Settings(BaseSettings):
     key: bytes = default_key
 
     class Config:
