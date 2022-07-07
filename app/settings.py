@@ -1,7 +1,13 @@
 import os
 from typing import List, Optional
 
-from pydantic import BaseModel, AnyHttpUrl, BaseSettings, parse_obj_as
+from pydantic import (
+    BaseModel,
+    AnyHttpUrl,
+    BaseSettings,
+    parse_obj_as,
+    validator,
+)
 import tomli
 
 
@@ -24,6 +30,12 @@ class APISettings(BaseModel):
     db_url: str = default_db_url
     host_url: AnyHttpUrl = default_host_url
     terraform_key: str = default_terraform_key
+
+    @validator("cors", pre=True)
+    def assemble_scopes(cls, v: str) -> List[str]:
+        if isinstance(v, str):
+            return [item.strip() for item in v.split(",")]
+        return v
 
 
 class Settings(BaseSettings):
