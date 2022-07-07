@@ -45,7 +45,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: enableops/api
+          images: ghcr.io/enableops/api-service
           tags: |
             type=ref,event=branch
             type=ref,event=pr
