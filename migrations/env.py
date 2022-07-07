@@ -26,7 +26,7 @@ target_metadata = base.CustomBase.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-sqlalchemy_db_uri = app_settings.Settings().api.DB_URL
+sqlalchemy_db_uri = app_settings.Settings().api.db_url
 
 
 def run_migrations_offline():

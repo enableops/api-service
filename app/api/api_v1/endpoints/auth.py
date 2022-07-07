@@ -37,7 +37,7 @@ async def start_auth(
 ):
     if redirect_uri is None:
         redirect_uri = (
-            f"{app_settings.HOST_URL}/v1{urls.Sections.auth}{urls.Auth.token}"
+            f"{app_settings.host_url}/v1{urls.Sections.auth}{urls.Auth.token}"
         )
 
     auth_url, state = oauth.get_auth_url_with_state(

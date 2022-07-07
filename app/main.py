@@ -21,9 +21,9 @@ from app.api.api_v1.api import api_router
 # App
 # Instantiate app
 app_settings = settings.Settings().api
-app_name = app_settings.NAME
-app_description = app_settings.DESCRIPTION
-app_version = app_settings.VERSION
+app_name = app_settings.name
+app_description = app_settings.description
+app_version = app_settings.version
 
 app = FastAPI(
     title=app_name,
@@ -33,7 +33,7 @@ app = FastAPI(
 )
 
 # Setup logging
-sentry_dsn = app_settings.SENTRY_DSN
+sentry_dsn = app_settings.sentry_dsn
 if sentry_dsn:
     if "dev" in app_version or app_version == "0.0.0":
         environment = "debug"
@@ -48,10 +48,10 @@ if sentry_dsn:
     app.add_middleware(SentryAsgiMiddleware)
 
 # Add CORS Security
-if app_settings.CORS:
+if app_settings.cors:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in app_settings.CORS],
+        allow_origins=[str(origin) for origin in app_settings.cors],
         allow_credentials=True,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type"],
@@ -68,7 +68,7 @@ app.add_middleware(
 
 # Database & session init
 engine = create_engine(
-    app_settings.DB_URL, connect_args={"check_same_thread": False}
+    app_settings.db_url, connect_args={"check_same_thread": False}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

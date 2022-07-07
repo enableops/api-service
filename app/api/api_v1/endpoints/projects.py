@@ -76,17 +76,22 @@ def delete_project(
         db=db, project_id=project_id, owner_id=user.id
     )
 
-    if db_project:
-        background_tasks.add_task(
-            crud.update_project_status,
-            db_project=db_project,
-            db=db,
-            new_status=model.ProjectStatus.REMOVE_REQUIRED,
-        )
+    if db_project is None:
+        raise APIException.NOPROJECT404
 
-        return {"detail": "ok"}
+    user_project = model.Project.from_orm(db_project)
 
-    raise APIException.NOPROJECT404
+    user_project = update_project_state_history(
+        project=user_project, new_status=model.ProjectStatus.REMOVE_REQUIRED
+    )
+
+    background_tasks.add_task(
+        crud.update_project,
+        db=db,
+        project=user_project,
+    )
+
+    return {"detail": "ok"}
 
 
 @router.post("/", response_model=model.ProjectResponse)
