@@ -2,7 +2,7 @@ from typing import Dict, List, Optional, Protocol, Tuple
 
 
 class Infrastructure(Protocol):
-    def infrastructure_update(self) -> bool:
+    def request_update(self) -> bool:
         ...
 
 
