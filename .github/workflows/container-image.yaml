@@ -56,9 +56,9 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
         with:
-          registry: eu.gcr.io
-          username: _json_key
-          password: ${{ secrets.GOOGLE_CREDENTIALS }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
