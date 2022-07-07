@@ -1,3 +1,5 @@
+import logging
+from typing import Dict
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,13 @@ from services import googleauth, jwt, googleapi
 from app.database.crud import user as crud
 from app.models.token import TokenData
 from app.models.user import User
+
+from google.auth.transport import requests as google_auth_requests
+from google.oauth2.credentials import Credentials
+from google.oauth2.id_token import verify_oauth2_token
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+from googleapiclient.discovery import build
 
 
 async def get_db():
@@ -22,13 +31,12 @@ async def get_db():
 get_oauth = lambda: googleauth.get_gauth()
 get_token_service = lambda: jwt.get_jwt()
 get_app_settings = lambda: settings.Settings().api
-get_user_api = lambda: googleapi.get_gapi()
 
 
-def get_current_user(
+def get_current_user_credentials_json(
     token: str = Depends(oauth.oauth2_scheme),
     db: Session = Depends(get_db),
-) -> User:
+) -> str:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -49,4 +57,20 @@ def get_current_user(
     if db_user is None:
         raise credentials_exception
 
-    return User.from_orm(db_user)
+    credentials_json = str(db_user.credentials)
+
+    return credentials_json
+
+
+async def get_user_api(
+    credentials_json: str = Depends(get_current_user_credentials_json),
+) -> googleapi.GoogleUserAPI:
+    user_api = googleapi.GoogleUserAPI.from_credentials_json(
+        credentials_json=credentials_json
+    )
+
+    with build("oauth2", "v2", credentials=user_api.credentials) as service:
+        user_info: Dict[str, str] = service.userinfo().get().execute()
+        print(user_info)
+
+    return user_api

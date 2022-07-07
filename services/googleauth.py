@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import json
+import logging
 import os
 from typing import List, Optional, Tuple
 
@@ -8,29 +9,34 @@ from google.oauth2.credentials import Credentials
 from google.oauth2.id_token import verify_oauth2_token
 from google_auth_oauthlib.flow import Flow
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as
+from pydantic import BaseModel, BaseSettings, HttpUrl, parse_obj_as, validator
 
 
 class OAuthSettings(BaseModel):
-    CLIENT_ID: str = ""
-    CLIENT_SECRET: str = ""
-    AUTH_URI: HttpUrl = parse_obj_as(
+    client_id: str
+    client_secret: str
+    auth_uri: HttpUrl = parse_obj_as(
         HttpUrl, "https://accounts.google.com/o/oauth2/auth"
     )
-    TOKEN_URI: HttpUrl = parse_obj_as(
+    token_uri: HttpUrl = parse_obj_as(
         HttpUrl, "https://accounts.google.com/o/oauth2/token"
     )
-    ACCESS_TYPE: str = "offline"
-    PROMPT_TYPE: str = "consent"
-    SCOPES: List[str] = []
+    access_type: str = "offline"
+    prompt_type: str = "consent"
+    scopes: List[str] = []
+
+    @validator("scopes", pre=True)
+    def assemble_scopes(cls, v: str) -> List[str]:
+        if isinstance(v, str):
+            return [item.strip() for item in v.split(",")]
+        return v
 
 
-class Settings(BaseModel):
-    oauth: OAuthSettings = OAuthSettings()
+class Settings(BaseSettings):
+    oauth: OAuthSettings
 
     class Config:
         env_nested_delimiter = "__"
-        secrets_dir = os.getenv("SECRETS_PATH")
 
 
 @dataclass
@@ -50,13 +56,13 @@ class GoogleOAuth:
     prompt_type: str
 
     def __init__(self, *, settings: Settings):
-        self.client_id = settings.oauth.CLIENT_ID
-        self.client_secret = settings.oauth.CLIENT_SECRET
-        self.auth_uri = settings.oauth.AUTH_URI
-        self.token_uri = settings.oauth.TOKEN_URI
-        self.scopes = settings.oauth.SCOPES
-        self.access_type = settings.oauth.ACCESS_TYPE
-        self.prompt_type = settings.oauth.PROMPT_TYPE
+        self.client_id = settings.oauth.client_id
+        self.client_secret = settings.oauth.client_secret
+        self.auth_uri = settings.oauth.auth_uri
+        self.token_uri = settings.oauth.token_uri
+        self.scopes = settings.oauth.scopes
+        self.access_type = settings.oauth.access_type
+        self.prompt_type = settings.oauth.prompt_type
 
     def get_auth_flow(
         self, redirect_uri: str, state: Optional[str] = None
@@ -117,9 +123,9 @@ class GoogleOAuth:
         return user
 
     def get_user_credentials_info(
-        self, user: GoogleOAuthUser
+        self, credentials_json: str
     ) -> dict[str, str]:
-        info: dict[str, str] = json.loads(user.credentials)
+        info: dict[str, str] = json.loads(credentials_json)
 
         if not "client_id" in info:
             info.update(
@@ -131,8 +137,8 @@ class GoogleOAuth:
 
         return info
 
-    def get_user_credentials(self, user: GoogleOAuthUser) -> Credentials:
-        info = self.get_user_credentials_info(user=user)
+    def prepare_user_credentials(self, credentials_json: str) -> Credentials:
+        info = self.get_user_credentials_info(credentials_json=credentials_json)
         credentials = Credentials.from_authorized_user_info(info=info)
 
         if not credentials.valid:
@@ -140,6 +146,8 @@ class GoogleOAuth:
             credentials.refresh(gar)
 
         if credentials.valid:
+            logging.debug(credentials_json)
+            logging.debug(credentials)
             return credentials
 
         raise ValueError

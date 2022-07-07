@@ -32,11 +32,13 @@ async def start_auth(
     request: Request,
     state: Optional[str] = None,
     oauth: protos.OAuth = Depends(deps.get_oauth),
+    redirect_uri: Optional[str] = None,
     app_settings: settings.APISettings = Depends(deps.get_app_settings),
 ):
-    redirect_uri = (
-        f"{app_settings.HOST_URL}/v1{urls.Sections.auth}{urls.Auth.token}"
-    )
+    if redirect_uri is None:
+        redirect_uri = (
+            f"{app_settings.HOST_URL}/v1{urls.Sections.auth}{urls.Auth.token}"
+        )
 
     auth_url, state = oauth.get_auth_url_with_state(
         redirect_uri=redirect_uri, state=state

@@ -6,7 +6,8 @@ from sqlalchemy.orm.attributes import flag_modified
 
 from app.database.project import Project
 from app.models import project as model
-from app.services.github import dispatch_apply_workflow
+
+# from app.services.github import dispatch_apply_workflow
 
 
 def get_project(db: Session, project_id: str) -> Optional[Project]:
@@ -110,12 +111,10 @@ def update_project_status(
         else:
             failed = model.ProjectStatus.CONFIGURE_FAILED
 
-        if not dispatch_apply_workflow():
-            new_status = failed
+        # if not dispatch_apply_workflow():
+        #     new_status = failed
 
     project.status = new_status
-    project.state.history.append(
-        {project.status: model.ProjectStatusDetails()}
-    )
+    project.state.history.append({project.status: model.ProjectStatusDetails()})
 
     return update_project(db=db, project=project)

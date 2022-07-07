@@ -3,7 +3,9 @@ from fastapi import APIRouter, Depends
 from app import protocols as protos
 from app import dependencies as deps
 
-# from . import projects
+from services import googleapi
+
+from . import projects
 
 router: APIRouter = APIRouter()
 
@@ -19,7 +21,9 @@ def user_status(user_api: protos.UserAPI = Depends(deps.get_user_api)):
 
 
 @router.get("/profile")
-def get_user_profile(user_api: protos.UserAPI = Depends(deps.get_user_api)):
+def get_user_profile(
+    user_api: googleapi.GoogleUserAPI = Depends(deps.get_user_api),
+):
     return user_api.get_profile()
 
 
