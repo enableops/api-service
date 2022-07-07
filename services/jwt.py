@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 import logging
 import os
 import secrets
-from typing import Any
 
 from jose import jwt
 from pydantic import BaseModel
@@ -101,7 +100,8 @@ def get_jwt() -> JWT:
     settings = Settings().jwt
 
     if settings.encryption_key == default_encryption_key:
-        logging.exception("Using default JWT encryption key")
+        logger = logging.getLogger("uvicorn")
+        logger.critical("Using default JWT encryption key")
 
     return JWT(
         token_expire_minutes=settings.token_expire_minutes,
