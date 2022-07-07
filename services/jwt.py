@@ -101,7 +101,7 @@ def get_jwt() -> JWT:
 
     if settings.encryption_key == default_encryption_key:
         logger = logging.getLogger("uvicorn")
-        logger.critical("Using default JWT encryption key")
+        logger.critical("Using default token encryption key")
 
     return JWT(
         token_expire_minutes=settings.token_expire_minutes,

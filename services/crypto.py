@@ -39,6 +39,6 @@ def get_crypto():
 
     if settings.key == default_key:
         logger = logging.getLogger("uvicorn")
-        logger.critical("Using default key for data encryption")
+        logger.critical("Using default data encryption key")
 
     return Crypto(settings=settings)
