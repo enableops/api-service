@@ -1,12 +1,12 @@
 from fastapi import APIRouter
 
 from app.api.api_v1.endpoints import auth, user, customers
-from app.core.config import settings
+from app.models import urls
 
 api_router = APIRouter()
 
 api_router.include_router(
-    router=auth.router, prefix=settings.PATH.AUTH_MODULE, tags=["auth"]
+    router=auth.router, prefix=urls.Sections.auth, tags=["auth"]
 )
 
 api_router.include_router(

@@ -3,11 +3,12 @@
 Contains fixed naming convention for propper migrations,
 and attributes for table name and created_at for every item in db.
 """
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, MetaData
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
-from app.services.helpers import current_timestamp
+current_timestamp = lambda: int(datetime.timestamp(datetime.now()))
 
 convention = {
     "ix": "ix_%(column_0_label)s",

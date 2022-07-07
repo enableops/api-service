@@ -35,6 +35,7 @@ COPY alembic.ini ./
 COPY migrations ./migrations
 COPY tests ./tests
 COPY app ./app
+COPY services ./services
 
 ARG API_VERSION
 RUN sed -i "3s/.*/version = \"${API_VERSION}\"/" pyproject.toml
