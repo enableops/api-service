@@ -6,6 +6,7 @@ kill_timeout = 5
 processes = []
 
 [env]
+  API__HOST_URL='https://api.enableops.io'
 
 [experimental]
   allowed_public_ports = []
