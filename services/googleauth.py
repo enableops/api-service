@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from typing import List, Optional, Tuple
 
 from google.auth.transport import requests as google_auth_requests
@@ -7,16 +8,19 @@ from google_auth_oauthlib.flow import Flow
 
 from pydantic import BaseModel, BaseSettings, HttpUrl, parse_obj_as, validator
 
+default_auth_uri = parse_obj_as(
+    HttpUrl, "https://accounts.google.com/o/oauth2/auth"
+)
+default_token_uri = parse_obj_as(
+    HttpUrl, "https://accounts.google.com/o/oauth2/token"
+)
+
 
 class OAuthSettings(BaseModel):
     client_id: str
     client_secret: str
-    auth_uri: HttpUrl = parse_obj_as(
-        HttpUrl, "https://accounts.google.com/o/oauth2/auth"
-    )
-    token_uri: HttpUrl = parse_obj_as(
-        HttpUrl, "https://accounts.google.com/o/oauth2/token"
-    )
+    auth_uri: HttpUrl = default_auth_uri
+    token_uri: HttpUrl = default_token_uri
     access_type: str = "offline"
     prompt_type: str = "consent"
     scopes: List[str] = []
@@ -33,6 +37,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_nested_delimiter = "__"
+        secrets_dir = os.getenv("SECRETS_PATH")
 
 
 @dataclass

@@ -5,18 +5,22 @@ import os
 import secrets
 
 from jose import jwt
-from pydantic import BaseModel
+from pydantic import BaseModel, BaseSettings, parse_obj_as
 
 default_encryption_key = "hello world!"
+default_params = {
+    "token_expire_minutes": 20160,
+    "encryption_key": default_encryption_key,
+}
 
 
 class JWTSettings(BaseModel):
-    token_expire_minutes: int = 20160
-    encryption_key: str = default_encryption_key
+    token_expire_minutes: int
+    encryption_key: str
 
 
-class Settings(BaseModel):
-    jwt: JWTSettings = JWTSettings()
+class Settings(BaseSettings):
+    jwt: JWTSettings = parse_obj_as(JWTSettings, default_params)
 
     class Config:
         env_nested_delimiter = "__"
