@@ -7,8 +7,6 @@ from sqlalchemy.orm.attributes import flag_modified
 from app.database.project import Project
 from app.models import project as model
 
-# from app.services.github import dispatch_apply_workflow
-
 
 def get_project(db: Session, project_id: str) -> Optional[Project]:
     return db.query(Project).filter(Project.project_id == project_id).first()
@@ -76,45 +74,17 @@ def create_project(
 def update_project(db: Session, project: model.Project) -> Optional[Project]:
     db_project = get_project(db=db, project_id=project.project_id)
 
-    if db_project:
-        db_project.status = project.status
-        db_project.state["history"] = jsonable_encoder(project.state.history)
+    if db_project is None:
+        return None
 
-        flag_modified(db_project, "status")
-        flag_modified(db_project, "state")
+    project_data = jsonable_encoder(project)
+    for field in project_data:
+        setattr(db_project, field, project_data[field])
 
-        db.commit()
-        db.refresh(db_project)
+    flag_modified(db_project, "status")
+    flag_modified(db_project, "state")
 
-        return db_project
+    db.commit()
+    db.refresh(db_project)
 
-    return None
-
-
-def update_project_status(
-    db_project: Project, db: Session, new_status: model.ProjectStatus
-) -> Optional[Project]:
-    project = model.Project.from_orm(db_project)
-
-    if project.status == new_status:
-        return db_project
-
-    is_currently_active = project.status in model.ProjectStatus.list_active()
-    will_be_active = new_status in model.ProjectStatus.list_active()
-
-    project.status = new_status
-
-    if is_currently_active != will_be_active:  # if we're switching on/off
-        # FIXME: come up with better structure for status
-        if new_status == model.ProjectStatus.REMOVE_REQUIRED:
-            failed = model.ProjectStatus.REMOVE_FAILED
-        else:
-            failed = model.ProjectStatus.CONFIGURE_FAILED
-
-        # if not dispatch_apply_workflow():
-        #     new_status = failed
-
-    project.status = new_status
-    project.state.history.append({project.status: model.ProjectStatusDetails()})
-
-    return update_project(db=db, project=project)
+    return db_project
