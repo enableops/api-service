@@ -1,6 +1,6 @@
 # enableOps API service
 
-[![Container image](https://github.com/enableops/api-service/actions/workflows/container-image.yaml/badge.svg)](https://github.com/enableops/api-service/actions/workflows/container-image.yaml) [![Tests](https://github.com/enableops/api-service/actions/workflows/tests.yaml/badge.svg)](https://github.com/enableops/api-service/actions/workflows/tests.yaml)
+[![Container image](https://github.com/enableops/api-service/actions/workflows/container-image.yaml/badge.svg)](https://github.com/enableops/api-service/actions/workflows/container-image.yaml) [![Tests](https://github.com/enableops/api-service/actions/workflows/tests.yaml/badge.svg)](https://github.com/enableops/api-service/actions/workflows/tests.yaml) [![Deploy to Fly.io](https://github.com/enableops/api-service/actions/workflows/deploy-fly.yaml/badge.svg)](https://github.com/enableops/api-service/actions/workflows/deploy-fly.yaml)
 
 
 - [Swagger UI](https://api.enableops.io/docs)
