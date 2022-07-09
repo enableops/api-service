@@ -28,14 +28,14 @@
 
 **Mandatory**
 - `GITHUB` - JSON configuration for triggering infrastructure updates with `token`, `repo_name`, `workflow_file`, `ref` fields
-- `API__TERRAFORM_KEY` - key to be used by infrastructure to list/update configured projects list
 - `OAUTH__CLIENT_ID` - id to establish oauth using third party service (e.g. Google Accounts)
 - `OAUTH__CLIENT_SECRET` - secret to establish oauth using third party service (e.g. Google Accounts)	
 - `OAUTH__SCOPES` - scopes that will be requested during oauth session	
-- `LITESTREAM_ACCESS_KEY_ID` - key id for accessing db replication s3 bucket
-- `LITESTREAM_SECRET_ACCESS_KEY` - key secret for accessing db replication s3 bucket
 
 **Optional**
+- `LITESTREAM_ACCESS_KEY_ID` - key id for accessing db replication s3 bucket
+- `LITESTREAM_SECRET_ACCESS_KEY` - key secret for accessing db replication s3 bucket
+- `API__TERRAFORM_KEY` - key to be used by infrastructure to list/update configured projects list
 - `API__CORS` - comma separated list of domains for CORS policy
 - `API__SENTRY_DSN`	- url for sending logs to [sentry.io](https://sentry.io/)
 - `JWT__TOKEN_EXPIRE_MINUTES` - auth session expiry timeout
