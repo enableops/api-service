@@ -21,7 +21,7 @@ ENV PYTHONUNBUFFERED=1
 
 ENV POETRY_VERSION=1.1.14
 RUN curl -sSL https://install.python-poetry.org | python -
-ENV PATH /root/.poetry/bin:$PATH
+ENV PATH /root/.local/bin:$PATH
 
 WORKDIR /usr/src/app
 COPY pyproject.toml poetry.lock ./
